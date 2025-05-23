@@ -56,25 +56,25 @@ namespace ArtReferenceAPI.Services
                     var folderName = Path.GetFileName(folderPath); // e.g., "ReferenceFolder"
                     _logger.LogDebug("Processing image set folder: {FolderName} at path {FolderPath}", folderName, folderPath);
 
-                    var metadataPath = Path.Combine(folderPath, $"{folderName}-metadata.json");
+                    var metadataFile = Directory.EnumerateFiles(folderPath, "*-metadata.json", SearchOption.TopDirectoryOnly).FirstOrDefault();
                     List<string> tags = new List<string>();
 
-                    if (File.Exists(metadataPath))
+                    if (metadataFile != null)
                     {
                         try
                         {
-                            var metadataJson = File.ReadAllText(metadataPath);
+                            var metadataJson = File.ReadAllText(metadataFile);
                             tags = JsonSerializer.Deserialize<List<string>>(metadataJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<string>();
-                            _logger.LogDebug("Successfully parsed metadata for {FolderName} with {TagCount} tags.", folderName, tags.Count);
+                            _logger.LogDebug("Successfully parsed metadata for {FolderName} from {MetadataFile} with {TagCount} tags.", folderName, metadataFile, tags.Count);
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogWarning(ex, "Failed to parse metadata for folder {FolderName} from {MetadataPath}", folderName, metadataPath);
+                            _logger.LogWarning(ex, "Failed to parse metadata for folder {FolderName} from {MetadataFile}", folderName, metadataFile);
                         }
                     }
                     else
                     {
-                        _logger.LogDebug("Metadata file not found for folder {FolderName} at {MetadataPath}", folderName, metadataPath);
+                        _logger.LogDebug("Metadata file ending with '-metadata.json' not found for folder {FolderName} in {FolderPath}", folderName, folderPath);
                     }
 
                     var imagesInFolder = Directory.GetFiles(folderPath)
