@@ -1,0 +1,6 @@
+@ArtReferenceAPI_HostAddress = http://localhost:5030
+
+GET {{ArtReferenceAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
